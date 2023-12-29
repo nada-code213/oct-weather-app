@@ -1,6 +1,16 @@
-export default function DaysTemperatureItem({ heure, temperature, state }) {
+export default function DaysTemperatureItem({
+  heure,
+  temperature,
+  state,
+  selected,
+  onClick,
+}) {
   return (
-    <div className="hourly-forcast-item" style={{ border: "none" }}>
+    <div
+      onClick={onClick}
+      className="hourly-forcast-item"
+      style={!selected ? { border: "none" } : null}
+    >
       <h3>{heure}</h3>
       <h2>{temperature}</h2>
       <p>{state}</p>

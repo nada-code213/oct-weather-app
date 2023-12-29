@@ -6,18 +6,22 @@ import DaysTemperatureItem from "./components/daysTemperatureItem";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { CircularProgress } from "@mui/material";
+import CurrentTime from "./components/currentTime";
 
 function App() {
   const [forecastData, setForecastData] = useState();
   const [forecastDataRight, setForecastDataRight] = useState();
   const [loading, setLoading] = useState(true);
   const [loading2, setLoading2] = useState(true);
+  const [selectedDate, setSelectedDate] = useState();
+
+  const [time, setTime] = useState(new Date().getTime());
   function getLeftData() {
     const options = {
       method: "GET",
-      url: "https://forecast9.p.rapidapi.com/rapidapi/forecast/Berlin/summary/",
+      url: "https://forecast9.p.rapidapi.com/rapidapi/forecast/Algiers/summary/",
       headers: {
-        "X-RapidAPI-Key": "b49b5da320msh6a39a312a9e81b4p15fc0djsnc40f0c714df5",
+        "X-RapidAPI-Key": "c975bf37b4msh1f233832d20478bp12b97bjsn747e557d11d9",
         "X-RapidAPI-Host": "forecast9.p.rapidapi.com",
       },
     };
@@ -25,6 +29,7 @@ function App() {
       .request(options)
       .then((res) => {
         setForecastData(res.data.forecast);
+        setSelectedDate(res.data.forecast.items[0]);
       })
       .catch(() => {})
       .finally(() => {
@@ -34,9 +39,9 @@ function App() {
   function getRightData() {
     const options = {
       method: "GET",
-      url: "https://forecast9.p.rapidapi.com/rapidapi/forecast/Berlin/hourly/",
+      url: "https://forecast9.p.rapidapi.com/rapidapi/forecast/Algiers/hourly/",
       headers: {
-        "X-RapidAPI-Key": "b49b5da320msh6a39a312a9e81b4p15fc0djsnc40f0c714df5",
+        "X-RapidAPI-Key": "c975bf37b4msh1f233832d20478bp12b97bjsn747e557d11d9",
         "X-RapidAPI-Host": "forecast9.p.rapidapi.com",
       },
     };
@@ -70,13 +75,21 @@ function App() {
             </div>
             <div className="main-temperature">
               <div className="main-temp-left">
-                <h1>20º</h1>
+                <h1>
+                  {(selectedDate.temperature.min +
+                    selectedDate.temperature.max) /
+                    2 +
+                    "º"}
+                </h1>
                 <p>Cloudy</p>
               </div>
               <div className="main-temp-right">
                 <div className="inner-stats">
                   <AirIcon />
-                  <p>6.1 mph</p>
+                  <p>
+                    {(selectedDate.wind.min + selectedDate.wind.max) / 2 +
+                      selectedDate.wind.unit}
+                  </p>
                 </div>
                 <div className="inner-stats">
                   <WaterDropIcon />
@@ -94,6 +107,10 @@ function App() {
                     temperature={`${
                       (e.temperature.min + e.temperature.max) / 2
                     }º`}
+                    selected={e.date === selectedDate.date}
+                    onClick={() => {
+                      setSelectedDate(e);
+                    }}
                   />
                 );
               })}
@@ -107,13 +124,22 @@ function App() {
         <div className="right">
           <div className="main-right">
             <h2 className="greeting">Good Morning</h2>
-            <h3>12:27 PM</h3>
+            <CurrentTime />
             <div className="stats">
-              <h2>20º</h2>
+              <h2>
+                {(forecastData.items[0].temperature.min +
+                  forecastData.items[0].temperature.max) /
+                  2}
+              </h2>
               <div>
                 <div className="inner-stats">
                   <AirIcon />
-                  <p>6.1 mph</p>
+                  <p>
+                    {(forecastData.items[0].wind.min +
+                      forecastData.items[0].wind.max) /
+                      2 +
+                      forecastData.items[0].wind.unit}
+                  </p>
                 </div>
                 <div className="inner-stats">
                   <WaterDropIcon />
@@ -132,7 +158,7 @@ function App() {
                   <ForcastItem
                     key={e.date}
                     heure={`${new Date(e.date).getHours()}h`}
-                    state={"Cloudy"}
+                    state={e.weather.text}
                     temperature={e.temperature.avg + " º"}
                   />
                 );
